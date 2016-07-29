@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <servlet>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <description>Multiple packages, separated by semicolon(;), can be specified in param-value</description>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>pl.psnc.spy.solr.indexer</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <context-param>
+        <description>This is main solr url.</description>
+        <param-name>SOLR.url</param-name>
+
+        <!-- SOLR localhost standard na Jetty -->
+        <param-value>http://localhost:8983/solr/</param-value>
+        
+        <!-- SOLR testowy -->
+        <!-- <param-value>http://10.11.111.141:8080/solr/</param-value> -->
+
+        <!-- SOLRSingle without replication Beta -->
+        <!-- <param-value>http://10.12.111.141:8080/solr/</param-value> -->
+
+        <!-- SOLRSingle without replication Alfa -->
+        <!-- <param-value>http://10.12.111.167:8080/solr/</param-value> -->
+
+        <!-- SOLRSingle without replication Test -->
+        <!-- <param-value>http://10.12.111.168:8080/solr/</param-value> -->
+
+        <!-- SOLRSingle with replication -->
+        <!-- <param-value>http://10.11.111.143:8080/solr/</param-value> -->
+        <!-- <param-value>http://10.11.111.144:8080/solr/</param-value> -->
+
+        <!-- SOLRCloud Beta -->
+        <!-- <param-value>http://10.11.111.143:8180/solr/</param-value> -->
+        <!-- <param-value>http://10.11.111.143:8280/solr/</param-value> -->
+        <!-- <param-value>http://10.11.111.144:8180/solr/</param-value> -->
+        <!-- <param-value>http://10.11.111.144:8280/solr/</param-value> -->
+
+        <!-- <param-value>http://localhost:8080/solr/</param-value> -->
+        <!-- <param-value>http://iris.man.poznan.pl:8080/solr/</param-value> -->
+    </context-param>
+    <context-param>
+        <description>This is module url placeholder pointng to the epo repository.</description>
+        <param-name>Module.url</param-name>
+        <!-- <param-value>http://static.test.epodreczniki.pl/content/module/%s/module.xml</param-value> -->
+        <param-value>%s/%s/module.xml</param-value>
+        <!-- <param-value>http://static.epodreczniki.pl/content/module/%s/module.xml</param-value> -->
+    </context-param>
+    <context-param>
+        <description>This is the main collection name.</description>
+        <param-name>SOLR.main</param-name>
+        <param-value>epub</param-value>
+    </context-param>
+    <context-param>
+        <description>This is the dynamic search collection name.</description>
+        <param-name>SOLR.ds</param-name>
+        <param-value>epub_ds</param-value>
+    </context-param>
+    <context-param>
+        <description>This is the autocomplete collection name.</description>
+        <param-name>SOLR.ac</param-name>
+        <param-value>epub_ac</param-value>
+    </context-param>
+    <servlet-mapping>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>

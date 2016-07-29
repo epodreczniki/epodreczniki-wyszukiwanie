@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema name="example" version="1.5">
+    
+    <fields>
+        
+        <field name="id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <field name="collectionid" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+   
+        <field name="type" type="string" indexed="false" stored="true" multiValued="false"/>
+
+        <field name="title" type="string" indexed="true" stored="true"/>
+        <field name="title_ngram" type="ngram_strip" indexed="true" stored="false"/>
+        <field name="abstract" type="string" indexed="true" stored="true"/>
+        <field name="abstract_ngram" type="ngram_strip" indexed="true" stored="false"/>
+
+        <field name="content_s" type="text" indexed="false" stored="false" multiValued="true"/>
+        
+        <field name="all_text" type="ngram_strip" indexed="true" stored="false" multiValued="true"/>
+        <!--<field name="all_text_rev" type="ngram_strip_rev" indexed="true" stored="false" multiValued="true"/>-->
+
+    </fields>
+
+    <uniqueKey>id</uniqueKey>
+
+    <copyField source="title" dest="all_text"/>
+    <copyField source="title" dest="title_ngram"/>
+    <copyField source="abstract" dest="all_text"/>
+    <copyField source="abstract" dest="abstract_ngram"/>
+    <!--<copyField source="content_s" dest="all_text"/>-->
+    
+    <types>
+        
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+
+        <fieldType name="text" class="solr.TextField" sortMissingLast="true"/>
+        
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        
+        <fieldType name="ngram_strip" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!-- remove punctuation -->
+                <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.StandardFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="25" />
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!-- remove punctuation -->
+                <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.StandardFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+            </analyzer>
+
+        </fieldType>
+
+        <fieldType name="ngram_strip_rev" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!-- remove punctuation -->
+                <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.StandardFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <!-- reverse -->
+                <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
+                   maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="25" />
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+            </analyzer>
+
+            <analyzer type="query">
+                <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!-- remove punctuation -->
+                <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.StandardFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                <!-- reverse -->
+                <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
+                   maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+            </analyzer>
+
+        </fieldType>
+
+    </types>
+
+        
+</schema>

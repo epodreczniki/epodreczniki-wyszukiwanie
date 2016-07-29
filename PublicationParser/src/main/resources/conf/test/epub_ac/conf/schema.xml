@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema name="example" version="1.5">
+    
+    <fields>
+        
+        <field name="id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="collectionid" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <!--<field name="collectionid" type="string" indexed="true" stored="true" multiValued="false" required="true"/>-->
+        
+        <field name="autocomplete" type="text_autocomplete" indexed="true" stored="true" multiValued="true"/>
+
+        <field name="tag" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="tag_autocomplete" type="text_autocomplete_strip" indexed="true" stored="true" omitNorms="true" omitTermFreqAndPositions="true" multiValued="true"/>
+
+    </fields>
+
+    <uniqueKey>id</uniqueKey>
+
+    <copyField source="tag" dest="tag_autocomplete"/>
+    <copyField source="tag" dest="autocomplete"/>
+    
+    <types>
+        
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+        
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        
+        <fieldType name="text_autocomplete" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="text_autocomplete_strip" class="solr.TextField" positionIncrementGap="100">
+             <analyzer>
+                 <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                 <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                 <!-- remove punctuation -->
+                 <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" />
+                <!--<filter class="solr.PositionFilterFactory"/>-->
+             </analyzer>
+         </fieldType>
+
+         <fieldType name="text_autocomplete_strip_rev" class="solr.TextField" positionIncrementGap="100">
+             <analyzer>
+                 <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                 <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                 <!-- remove punctuation -->
+                 <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Punct}*)(.*?)(\p{Punct}*)$" replacement="$2"/>
+                 <filter class="solr.LowerCaseFilterFactory"/>
+                 <filter class="solr.StandardFilterFactory"/>
+                 <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+                 <!-- reverse -->
+                 <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
+                    maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+             </analyzer>
+         </fieldType>
+    </types>
+
+        
+</schema>

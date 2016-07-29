@@ -1,0 +1,89 @@
+
+Instalacja:
+
+przygotowanie kontekstu:
+cd /etc/tomcat6/Catalina/localhost/
+
+sudo vim solrindexer.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/solrindexer"/>
+
+wrzucenie wara:
+sudo service tomcat6 stop
+
+cd /var/lib/tomcat6/webapps
+sudo rm -r solrindexer
+sudo rm solrindexer.war
+sudo cp /home/spychala/install/indexer/SOLRIndexerWebapp-1.0-SNAPSHOT.war solrindexer.war
+sudo chown tomcat:tomcat solrindexer.war 
+sudo chmod a-x solrindexer.war
+sudo chmod o+r solrindexer.war 
+ls -la
+
+sudo service tomcat6 start
+
+konfiguracja web.xml
+
+sudo vim /var/lib/tomcat6/webapps/solrindexer/WEB-INF/web.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <servlet>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <description>Multiple packages, separated by semicolon(;), can be specified in param-value</description>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>pl.psnc.spy.solr.indexer</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <context-param>
+        <description>This is main solr url.</description>
+        <param-name>SOLR.url</param-name>
+        <!-- <param-value>http://localhost:8080/solr</param-value> -->
+        <param-value>http://iris.man.poznan.pl:8080/solr/</param-value>
+    </context-param>
+    <context-param>
+        <description>This is the main collection name.</description>
+        <param-name>SOLR.main</param-name>
+        <param-value>epub</param-value>
+    </context-param>
+    <context-param>
+        <description>This is the dynamic search collection name.</description>
+        <param-name>SOLR.ds</param-name>
+        <param-value>epub_ds</param-value>
+    </context-param>
+    <context-param>
+        <description>This is the autocomplete collection name.</description>
+        <param-name>SOLR.ac</param-name>
+        <param-value>epub_ac</param-value>
+    </context-param>
+    <servlet-mapping>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>
+
+Uzycie
+
+Indeksowanie
+PUT: http://localhost:8080/solrindexer/index?colURL=http://iris.man.poznan.pl:9080/collection.xml
+
+Czyszczenie:
+DELETE: http://localhost:8080/solrindexer/clear
+DELETE: http://localhost:8080/solrindexer/clear/main
+DELETE: http://localhost:8080/solrindexer/clear/autocomplete
+DELETE: http://localhost:8080/solrindexer/clear/dynamicsearch
+
+DELETE: http://localhost:8080/solrindexer/clear/{collectionID}
